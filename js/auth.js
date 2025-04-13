@@ -1,3 +1,7 @@
+const isGitHubPages = window.location.host.includes('github.io');
+const basePath = isGitHubPages ? '/core-values' : '';
+const loginUrl = window.location.origin + basePath + '/auth.html';
+
 let isLogin = true;
 
 // DOM Elements
@@ -62,7 +66,7 @@ async function handleAuth() {
                 await emailjs.send('service_zkrdtgj', 'template_sshzxpg', {
                     email: email,
                     password: randomPassword,
-                    login_url: window.location.origin + '/auth.html'
+                    login_url: loginUrl
                 });
                 
                 showMessage("Password sent to your email!", "green");
