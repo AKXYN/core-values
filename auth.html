@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>emailjs.init('UQO5y-V-Z0Q1o5DUG');</script>
+    <title>Login/Register</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; }
+        .container { background: #f9f9f9; padding: 20px; border-radius: 8px; }
+        input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
+        button { background: #4285f4; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; }
+        #message { margin-top: 10px; color: red; }
+        #password-field { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 id="auth-title">Login</h2>
+        <div id="auth-form">
+            <input type="email" id="email" placeholder="Email" required>
+            <div id="password-field">
+                <input type="password" id="password" placeholder="Password">
+            </div>
+            <button id="auth-action">Login</button>
+            <p id="toggle-auth">No account? <a href="#" id="toggle-link">Register instead</a></p>
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
