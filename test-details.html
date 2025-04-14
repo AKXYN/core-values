@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Details</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4285f4;
+            margin-top: 0;
+        }
+        .back-btn {
+            background: #f1f1f1;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .student-table th, .student-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .student-table th {
+            background: #f5f7fa;
+            font-weight: 500;
+        }
+        .student-table tr:hover {
+            background: #f9f9f9;
+        }
+        .student-row {
+            cursor: pointer;
+        }
+        .status-completed {
+            color: #34a853;
+        }
+        .status-pending {
+            color: #fbbc05;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px 0;
+            color: #757575;
+        }
+        .error-message {
+            color: #f44336;
+            text-align: center;
+            padding: 20px;
+        }
+        .report-button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .report-button:hover {
+            background: #3367d6;
+        }
+        
+        /* New styles for student management */
+        .student-management {
+            margin-top: 20px;
+        }
+        .student-management h2 {
+            color: #4285f4;
+            margin-top: 0;
+        }
+        .add-students-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .add-students-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        #student-emails {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            margin-bottom: 15px;
+            resize: vertical;
+        }
+        .action-button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .action-button:hover {
+            background: #3367d6;
+        }
+        .action-button:disabled {
+            background: #a0c4ff;
+            cursor: not-allowed;
+        }
+        .student-list-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .remove-student-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .remove-student-btn:hover {
+            background: #d32f2f;
+        }
+        
+        /* Delete button styling */
+        .delete-student-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .delete-student-btn:hover {
+            background: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" id="back-btn">← Back to Dashboard</button>
+        <h1 id="test-name">Test Details</h1>
+        
+        <div id="loading-indicator" class="loading">Loading test details...</div>
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        
+        <!-- Add Students Section -->
+        <div id="add-students-section" class="add-students-section" style="display: none;">
+            <h3>Add Students</h3>
+            <p>Enter email addresses (one per line):</p>
+            <textarea id="student-emails" rows="5" placeholder="student1@example.com&#10;student2@example.com&#10;student3@example.com"></textarea>
+            <button id="add-students-btn" class="action-button">Add Students</button>
+        </div>
+        
+        <table class="student-table" id="students-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Student Email</th>
+                    <th>Status</th>
+                    <th>Score</th>
+                    <th id="action-column" style="display: none;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="students-list">
+                <!-- Students will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- Your config -->
+    <script src="js/firebase.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/test-details.js"></script>
+</body>
+</html>

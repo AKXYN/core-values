@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Sample Data</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4285f4;
+            margin-top: 0;
+        }
+        .btn {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background: #3367d6;
+        }
+        .back-btn {
+            background: #f1f1f1;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .instructions {
+            background: #e8f0fe;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" id="back-btn">← Back to Dashboard</button>
+        <h1>Add Sample Test Data</h1>
+        
+        <div class="instructions">
+            <p>This page will add sample test data to your Firestore database. The data includes:</p>
+            <ul>
+                <li>2 completed tests with various student results</li>
+                <li>1 ongoing test with some completed and some pending students</li>
+                <li>1 future test (draft) with no results yet</li>
+            </ul>
+            <p>Click the button below to add the sample data.</p>
+        </div>
+        
+        <button id="add-sample-data" class="btn">Add Sample Test Data</button>
+        <div id="status" style="margin-top: 20px;"></div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- Your config -->
+    <script src="js/firebase.js"></script>
+    <script src="js/sample-data.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication
+            firebase.auth().onAuthStateChanged(user => {
+                if (!user) {
+                    window.location.href = 'auth.html';
+                    return;
+                }
+                
+                // Back button
+                document.getElementById('back-btn').addEventListener('click', () => {
+                    window.location.href = 'dashboard.html';
+                });
+                
+                // Add sample data button
+                document.getElementById('add-sample-data').addEventListener('click', () => {
+                    const statusDiv = document.getElementById('status');
+                    statusDiv.textContent = 'Adding sample data...';
+                    
+                    addSampleTests().then(() => {
+                        statusDiv.textContent = 'Sample data added successfully! Redirecting to dashboard...';
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 2000);
+                    }).catch(error => {
+                        statusDiv.textContent = `Error: ${error.message}`;
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

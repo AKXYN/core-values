@@ -18,6 +18,9 @@
         <h2 id="auth-title">Login</h2>
         <div id="auth-form">
             <input type="email" id="email" placeholder="Email" required>
+            <div id="company-field" style="display: none;">
+                <input type="text" id="company-name" placeholder="Company Name" required>
+            </div>
             <div id="password-field">
                 <input type="password" id="password" placeholder="Password">
             </div>
@@ -27,9 +30,14 @@
         </div>
     </div>
 
+
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script> <!-- THIS IS CRUCIAL -->
+
     <script src="js/firebase.js"></script>
+    <script src="js/utils.js"></script>
     <script src="js/auth.js"></script>
 </body>
 </html>
