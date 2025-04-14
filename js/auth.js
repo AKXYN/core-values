@@ -74,22 +74,27 @@ async function handleAuth() {
             }
 
             const randomPassword = generateRandomPassword();
+            console.log("Generated password:", randomPassword);
             
             try {
-
                 // 1. First create the auth user
+                console.log("Creating user with email:", email);
                 const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, randomPassword);
                 
                 // 2. Get the created user's UID
                 const user = userCredential.user;
+                console.log("User created successfully with UID:", user.uid);
                 
                 // 3. Now create the company document
+                console.log("Creating company document for:", companyName);
                 await firebase.firestore().collection('companies').doc(user.uid).set({
                     name: companyName,
                     adminEmail: email,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                console.log("Company document created successfully");
 
+                console.log("Sending email with password");
                 await emailjs.send('service_zkrdtgj', 'template_sshzxpg', {
                     email: email,
                     password: randomPassword,
@@ -100,12 +105,30 @@ async function handleAuth() {
                 emailInput.value = "";
                 companyInput.value = ""; // Reset company name field
 
-            } catch (emailError) {
-                console.error("Email sending failed");
+            } catch (error) {
+                console.error("Registration error:", error);
+                if (error.code === 'auth/email-already-in-use') {
+                    showMessage("This email is already registered. Please login instead.", "red");
+                } else if (error.code === 'auth/invalid-email') {
+                    showMessage("Invalid email format. Please check your email address.", "red");
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    showMessage("Email/password accounts are not enabled. Please contact support.", "red");
+                } else if (error.code === 'auth/weak-password') {
+                    showMessage("Password is too weak. Please try again.", "red");
+                } else {
+                    showMessage(`Registration failed: ${error.message}`, "red");
+                }
             }
         }
     } catch (error) {
-        showMessage("Login failed", "red");
+        console.error("Authentication error:", error);
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+            showMessage("Invalid email or password", "red");
+        } else if (error.code === 'auth/too-many-requests') {
+            showMessage("Too many failed login attempts. Please try again later.", "red");
+        } else {
+            showMessage(`Login failed: ${error.message}`, "red");
+        }
     }
 }
 

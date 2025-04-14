@@ -47,7 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const createTestBtn = document.getElementById('create-test');
         if (createTestBtn) {
             createTestBtn.addEventListener('click', () => {
-                navigateToPage('create-test.html');
+                // Redirect to the Streamlit app
+                window.location.href = 'https://test-generator-app.streamlit.app/';
             });
         }
     }
@@ -64,19 +65,19 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get tests for the current user
             let testsSnapshot;
             try {
-                // Try with ordering
+                // Try with ordering - using correct field names (user_id and start_date)
                 testsSnapshot = await firebase.firestore()
                     .collection('tests')
-                    .where('userId', '==', user.uid)
-                    .orderBy('startDate', 'desc')
+                    .where('user_id', '==', user.uid)
+                    .orderBy('start_date', 'desc')
                     .get();
             } catch (indexError) {
                 console.warn("Index error, falling back to unordered query:", indexError);
                 
-                // If index error, fall back to unordered query
+                // If index error, fall back to unordered query - using correct field name (user_id)
                 testsSnapshot = await firebase.firestore()
                     .collection('tests')
-                    .where('userId', '==', user.uid)
+                    .where('user_id', '==', user.uid)
                     .get();
                     
                 // Show a message about creating the index
@@ -113,12 +114,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
             
-            // Sort tests by startDate if we couldn't use the index
+            // Sort tests by start_date if we couldn't use the index
             if (!testsSnapshot.query.orderBy) {
                 allTests.sort((a, b) => {
-                    if (!a.startDate) return 1;
-                    if (!b.startDate) return -1;
-                    return b.startDate.toDate() - a.startDate.toDate();
+                    if (!a.start_date) return 1;
+                    if (!b.start_date) return -1;
+                    return b.start_date.toDate() - a.start_date.toDate();
                 });
             }
             
@@ -175,8 +176,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let statusClass = `status-${status}`;
         
         // Format dates
-        const startDate = test.startDate ? test.startDate.toDate().toLocaleDateString() : 'Not set';
-        const endDate = test.endDate ? test.endDate.toDate().toLocaleDateString() : 'Not set';
+        const startDate = test.start_date ? test.start_date.toDate().toLocaleDateString() : 'Not set';
+        const endDate = test.end_date ? test.end_date.toDate().toLocaleDateString() : 'Not set';
         
         // Count students
         const studentCount = test.students ? test.students.length : 0;

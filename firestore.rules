@@ -4,6 +4,34 @@ service cloud.firestore {
     // User-specific documents
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Core values subcollection
+      match /core_values/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Tests subcollection under user document
+      match /tests/{testId} {
+        // Allow creation with proper user_id (snake_case)
+        allow create: if request.auth != null && 
+          request.resource.data.user_id == request.auth.uid;
+        
+        // Allow reads if user owns the test
+        allow read: if request.auth != null && 
+          resource.data.user_id == request.auth.uid;
+        
+        // Allow updates only to certain fields
+        allow update: if request.auth != null &&
+          resource.data.user_id == request.auth.uid &&
+          // Only allow these fields to be updated
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'students', 'end_date', 'results']);
+        
+        // Allow deletion only for draft tests
+        allow delete: if request.auth != null &&
+          resource.data.user_id == request.auth.uid &&
+          resource.data.status == 'draft';
+      }
     }
     
     // Company documents (1:1 with user)
@@ -11,27 +39,9 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == companyId;
     }
     
-    // Tests collection rules
-    match /tests/{testId} {
-      // Allow creation with proper userId
-      allow create: if request.auth != null && 
-        request.resource.data.userId == request.auth.uid;
-      
-      // Allow reads if user owns the test
-      allow read: if request.auth != null && 
-        resource.data.userId == request.auth.uid;
-      
-      // Allow updates only to certain fields
-      allow update: if request.auth != null &&
-        resource.data.userId == request.auth.uid &&
-        // Only allow these fields to be updated
-        request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['status', 'students', 'endDate', 'results']);
-      
-      // Allow deletion only for draft tests
-      allow delete: if request.auth != null &&
-        resource.data.userId == request.auth.uid &&
-        resource.data.status == 'draft';
+    // Default deny all other access
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 } 

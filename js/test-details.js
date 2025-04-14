@@ -55,8 +55,9 @@ async function loadTestDetails(user, testId) {
         console.log("Test data:", testData);
         
         // Verify the test belongs to the current user
-        if (testData.userId !== user.uid) {
+        if (testData.user_id !== user.uid && testData.userId !== user.uid) {
             console.log("Test does not belong to current user");
+            console.log("Test user_id:", testData.user_id);
             console.log("Test userId:", testData.userId);
             console.log("User ID:", user.uid);
             showError("You don't have permission to view this test");
@@ -284,7 +285,7 @@ async function addStudents(testId, emails) {
         const testData = testDoc.data();
         
         // Verify the test belongs to the current user
-        if (testData.userId !== firebase.auth().currentUser.uid) {
+        if (testData.user_id !== firebase.auth().currentUser.uid) {
             throw new Error('You do not have permission to modify this test');
         }
         
@@ -356,7 +357,7 @@ async function deleteStudent(testId, studentEmail) {
         const testData = testDoc.data();
         
         // Verify the test belongs to the current user
-        if (testData.userId !== firebase.auth().currentUser.uid) {
+        if (testData.user_id !== firebase.auth().currentUser.uid) {
             throw new Error('You do not have permission to modify this test');
         }
         
