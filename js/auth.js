@@ -1,6 +1,6 @@
 const isGitHubPages = window.location.host.includes('github.io');
 const basePath = isGitHubPages ? '/core-values' : '';
-const loginUrl = window.location.origin + basePath + '/auth.html';
+const loginUrl = getPageUrl('auth.html');
 
 let isLogin = true;
 
@@ -25,6 +25,11 @@ toggleLink.addEventListener('click', (e) => {
 });
 
 function updateUI() {
+    // Reset input fields when switching modes
+    emailInput.value = "";
+    passwordInput.value = "";
+    if (companyInput) companyInput.value = "";
+    
     if (isLogin) {
         authTitle.textContent = "Login";
         authButton.textContent = "Login";
@@ -58,7 +63,7 @@ async function handleAuth() {
             console.log("User entered this password",password);
             await firebase.auth().signInWithEmailAndPassword(email, password);
             showMessage("Login successful! Redirecting...", "green");
-            setTimeout(() => window.location.href = "dashboard.html", 1000);
+            setTimeout(() => navigateToPage('dashboard.html'), 1000);
         } else {
             // REGISTER FLOW
 
@@ -93,7 +98,7 @@ async function handleAuth() {
                 
                 showMessage("Password sent to your email!", "green");
                 emailInput.value = "";
-                companyInput.value = "";
+                companyInput.value = ""; // Reset company name field
 
             } catch (emailError) {
                 console.error("Email sending failed");
@@ -105,7 +110,7 @@ async function handleAuth() {
 }
 
 function generateRandomPassword() {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%";
+    const chars = "ABCDEFGHJKLMNPQRTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%";
     let password = "";
     for (let i = 0; i < 10; i++) {
         password += chars.charAt(Math.floor(Math.random() * chars.length));
