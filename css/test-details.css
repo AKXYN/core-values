@@ -1,0 +1,328 @@
+:root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --danger-hover: #dc2626;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --bg-primary: #f3f4f6;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f9fafb;
+    --border-color: #e5e7eb;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --header-bg: #f8fafc;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--header-bg);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+}
+
+.back-btn {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: #e5e7eb;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.back-btn:hover {
+    background: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.5;
+}
+
+.test-title {
+    text-align: center;
+    margin: 0;
+}
+
+.deploy-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    table-layout: fixed;
+}
+
+.student-table th,
+.student-table td {
+    padding: 1rem;
+    text-align: left;
+}
+
+.student-table th:first-child,
+.student-table td:first-child {
+    width: 80%;
+}
+
+.student-table th:last-child,
+.student-table td:last-child {
+    width: 20%;
+    text-align: center;
+}
+
+.student-table tr:has(td[colspan="3"]) td {
+    width: 100%;
+    display: table-cell;
+}
+
+.student-table tr:has(td[colspan="3"]) {
+    width: 100%;
+}
+
+.student-table th {
+    text-align: left;
+    padding: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.student-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.student-table td:last-child {
+    text-align: center;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.student-table td.score-column {
+    text-align: center;
+    padding: 1rem;
+}
+
+.student-table th:last-child {
+    text-align: center;
+}
+
+.student-table th.score-column {
+    text-align: center;
+}
+
+.student-row:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.section-header {
+    background-color: var(--bg-tertiary);
+    width: 100%;
+}
+
+.section-header td {
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    padding: 1rem;
+}
+
+.section-header td[colspan="2"],
+.section-header td[colspan="3"] {
+    width: 100%;
+    display: table-cell;
+}
+
+.add-students-section {
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+#student-emails {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin: 1rem 0;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    background: var(--bg-secondary);
+}
+
+.action-button {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.view-report-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.view-report-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.student-table td.actions-column {
+    text-align: center;
+    padding: 0.5rem;
+    width: 20%;
+    display: table-cell;
+}
+
+.student-table td.actions-column .delete-student-btn {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    margin: 0 auto;
+}
+
+.student-table td.actions-column .delete-student-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+    margin: 0 auto;
+}
+
+.deploy-button {
+    background-color: var(--success-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    width: auto;
+    margin: 0;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.deploy-button:hover {
+    background-color: #0d9b6c;
+}
+
+.error-message {
+    background-color: #fee2e2;
+    color: var(--danger-color);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: center;
+    border: 1px solid #fecaca;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+.loading svg {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+    display: block;
+    color: var(--primary-color);
+}
+
+.loading p {
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin: 1rem auto;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .student-table {
+        display: block;
+        overflow-x: auto;
+    }
+} 

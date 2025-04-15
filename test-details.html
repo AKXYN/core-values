@@ -4,241 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Details</title>
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f5f7fa;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #4285f4;
-            margin-top: 0;
-        }
-        .back-btn {
-            background: #f1f1f1;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-        .student-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .student-table th, .student-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .student-table thead tr {
-            background: #f5f7fa;
-        }
-        .student-table th {
-            font-weight: 500;
-        }
-        /* Remove display: none from the action column */
-        #action-column {
-            background: #f5f7fa;
-        }
-        .section-header {
-            background: #f5f7fa;
-        }
-        .section-header td {
-            text-align: center !important;
-            font-weight: 500;
-            padding: 12px 15px;
-        }
-        /* Status text colors */
-        .status-completed {
-            color: #34a853;
-            font-weight: 500;
-        }
-        .status-pending {
-            color: #fbbc05;
-            font-weight: 500;
-        }
-        .student-row:hover {
-            background: #f9f9f9;
-        }
-        .loading {
-            text-align: center;
-            padding: 40px 0;
-            color: #757575;
-        }
-        .error-message {
-            color: #f44336;
-            text-align: center;
-            padding: 20px;
-        }
-        .report-button {
-            background: #4285f4;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            margin-top: 20px;
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .report-button:hover {
-            background: #3367d6;
-        }
-        
-        /* New styles for student management */
-        .student-management {
-            margin-top: 20px;
-        }
-        .student-management h2 {
-            color: #4285f4;
-            margin-top: 0;
-        }
-        .add-students-section {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        .add-students-section h3 {
-            margin-top: 0;
-            color: #333;
-        }
-        #student-emails {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: inherit;
-            margin-bottom: 15px;
-            resize: vertical;
-        }
-        .action-button {
-            background: #4285f4;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .action-button:hover {
-            background: #3367d6;
-        }
-        .action-button:disabled {
-            background: #a0c4ff;
-            cursor: not-allowed;
-        }
-        .student-list-section h3 {
-            margin-top: 0;
-            color: #333;
-        }
-        .remove-student-btn {
-            background: #f44336;
-            color: white;
-            border: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            font-size: 16px;
-            line-height: 1;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .remove-student-btn:hover {
-            background: #d32f2f;
-        }
-        
-        /* Delete button styling */
-        .delete-student-btn {
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .delete-student-btn:hover {
-            background: #d32f2f;
-        }
-        
-        /* Deploy button styling */
-        .deploy-button {
-            background: #34a853;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto 20px auto;
-            transition: background-color 0.2s;
-        }
-        .deploy-button:hover {
-            background: #2e7d32;
-        }
-        .deploy-button:disabled {
-            background: #a5d6a7;
-            cursor: not-allowed;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/test-details.css">
 </head>
 <body>
     <div class="container">
-        <button class="back-btn" id="back-btn">← Back to Dashboard</button>
-        <h1 id="test-name">Test Details</h1>
-        
-        <div id="loading-indicator" class="loading">Loading test details...</div>
-        <div id="error-message" class="error-message" style="display: none;"></div>
-        
-        <!-- Deploy button (only shown for future tests) -->
-        <button id="deploy-test-btn" class="deploy-button" style="display: none;">
-            Deploy Test for Students
-        </button>
-        
-        <!-- Add Students Section -->
-        <div id="add-students-section" class="add-students-section" style="display: none;">
-            <h3>Add Students</h3>
-            <p>Enter email addresses (one per line):</p>
-            <textarea id="student-emails" rows="5" placeholder="student1@example.com&#10;student2@example.com&#10;student3@example.com"></textarea>
-            <button id="add-students-btn" class="action-button">Add Students</button>
+        <div class="header">
+            <button class="back-btn" id="back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Dashboard
+            </button>
+            <h1 id="test-name" class="test-title">Test Details</h1>
+            <div class="deploy-button-container">
+                <button id="deploy-test-btn" class="deploy-button" style="display: none;">
+                    Deploy Test for Students
+                </button>
+            </div>
         </div>
         
-        <table class="student-table" id="students-table" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Student Email</th>
-                    <th>Status</th>
-                    <th>Score</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="students-list">
-                <!-- Students will be inserted here -->
-            </tbody>
-        </table>
+        <div id="loading-indicator" class="loading">
+            <svg class="animate-spin h-8 w-8 text-gray-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-4">Loading test details...</p>
+        </div>
+        
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Add Students</h2>
+            </div>
+            <div id="add-students-section" class="add-students-section" style="display: none;">
+                <p class="text-secondary">Enter email addresses (one per line):</p>
+                <textarea id="student-emails" rows="5" placeholder="student1@example.com&#10;student2@example.com&#10;student3@example.com"></textarea>
+                <button id="add-students-btn" class="action-button view-report-btn">Add Students</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Students List</h2>
+            </div>
+            <table class="student-table" id="students-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Student Email</th>
+                        <th class="score-column">Score</th>
+                        <th class="actions-column">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="students-list">
+                    <!-- Students will be inserted here -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Firebase SDKs -->

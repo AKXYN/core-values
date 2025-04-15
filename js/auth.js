@@ -2,135 +2,137 @@ const isGitHubPages = window.location.host.includes('github.io');
 const basePath = isGitHubPages ? '/core-values' : '';
 const loginUrl = getPageUrl('auth.html');
 
-let isLogin = true;
+// Initialize variables
+let isLoginMode = true;
 
 // DOM Elements
+const authForm = document.getElementById('auth-form');
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const passwordField = document.getElementById('password-field');
-const authButton = document.getElementById('auth-action');
-const toggleLink = document.getElementById('toggle-link');
-const messageDiv = document.getElementById('message');
-const authTitle = document.getElementById('auth-title');
-const companyInput = document.getElementById('company-name');
 const companyField = document.getElementById('company-field');
+const companyInput = document.getElementById('company-name');
+const authButton = document.getElementById('auth-action');
+const messageDiv = document.getElementById('message');
+const toggleOptions = document.querySelectorAll('.toggle-option');
+const toggleSlider = document.querySelector('.toggle-slider');
 
-updateUI();
-
-// Toggle between Login/Register
-toggleLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    isLogin = !isLogin;
-    updateUI();
+// Toggle functionality
+toggleOptions.forEach(option => {
+    option.addEventListener('click', function() {
+        const mode = this.dataset.mode;
+        isLoginMode = mode === 'login';
+        
+        // Update active state
+        toggleOptions.forEach(opt => opt.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Move slider
+        toggleSlider.classList.toggle('right', !isLoginMode);
+        
+        // Update form
+        updateForm();
+    });
 });
 
-function updateUI() {
-    // Reset input fields when switching modes
+function updateForm() {
+    // Reset input fields
     emailInput.value = "";
     passwordInput.value = "";
     if (companyInput) companyInput.value = "";
     
-    if (isLogin) {
-        authTitle.textContent = "Login";
+    if (isLoginMode) {
         authButton.textContent = "Login";
         passwordField.style.display = "block";
-        companyField.style.display = "none"; // Hide company field
-        toggleLink.innerHTML = 'No account? <a href="#" id="toggle-link">Register instead</a>';
+        companyField.style.display = "none";
     } else {
-        authTitle.textContent = "Register";
         authButton.textContent = "Send Password";
         passwordField.style.display = "none";
-        companyField.style.display = "block"; // Show company field
-        toggleLink.innerHTML = 'Have account? <a href="#" id="toggle-link">Login instead</a>';
+        companyField.style.display = "block";
     }
+    
+    // Clear any existing messages
+    messageDiv.textContent = '';
+    messageDiv.className = 'message';
 }
 
 // Handle form submission
-authButton.addEventListener('click', handleAuth);
-
-async function handleAuth() {
+authForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
     const email = emailInput.value.trim();
     
     if (!email) {
-        showMessage("Please enter email", "red");
+        messageDiv.textContent = "Please enter email";
+        messageDiv.className = "message error";
         return;
     }
 
     try {
-        if (isLogin) {
+        if (isLoginMode) {
             // LOGIN FLOW
             const password = passwordInput.value;
-            console.log("User entered this password",password);
             await firebase.auth().signInWithEmailAndPassword(email, password);
-            showMessage("Login successful! Redirecting...", "green");
-            setTimeout(() => navigateToPage('dashboard.html'), 1000);
+            messageDiv.textContent = "Login successful! Redirecting...";
+            messageDiv.className = "message success";
+            setTimeout(() => window.location.href = 'dashboard.html', 1000);
         } else {
             // REGISTER FLOW
-
             const companyName = companyInput.value.trim();
             if (!companyName) {
-                showMessage("Please enter company name", "red");
+                messageDiv.textContent = "Please enter company name";
+                messageDiv.className = "message error";
                 return;
             }
-
+            
             const randomPassword = generateRandomPassword();
-            console.log("Generated password:", randomPassword);
             
             try {
-                // 1. First create the auth user
-                console.log("Creating user with email:", email);
+                // 1. Create the auth user
                 const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, randomPassword);
                 
-                // 2. Get the created user's UID
-                const user = userCredential.user;
-                console.log("User created successfully with UID:", user.uid);
-                
-                // 3. Now create the company document
-                console.log("Creating company document for:", companyName);
-                await firebase.firestore().collection('companies').doc(user.uid).set({
+                // 2. Create the company document
+                await firebase.firestore().collection('companies').doc(userCredential.user.uid).set({
                     name: companyName,
                     adminEmail: email,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                console.log("Company document created successfully");
 
-                console.log("Sending email with password");
+                // 3. Send email with password
                 await emailjs.send('service_zkrdtgj', 'template_sshzxpg', {
                     email: email,
                     password: randomPassword,
                     login_url: loginUrl
                 });
                 
-                showMessage("Password sent to your email!", "green");
+                messageDiv.textContent = "Password sent to your email!";
+                messageDiv.className = "message success";
                 emailInput.value = "";
-                companyInput.value = ""; // Reset company name field
+                companyInput.value = "";
 
             } catch (error) {
                 console.error("Registration error:", error);
                 if (error.code === 'auth/email-already-in-use') {
-                    showMessage("This email is already registered. Please login instead.", "red");
+                    messageDiv.textContent = "This email is already registered. Please login instead.";
                 } else if (error.code === 'auth/invalid-email') {
-                    showMessage("Invalid email format. Please check your email address.", "red");
+                    messageDiv.textContent = "Invalid email format. Please check your email address.";
                 } else if (error.code === 'auth/operation-not-allowed') {
-                    showMessage("Email/password accounts are not enabled. Please contact support.", "red");
+                    messageDiv.textContent = "Email/password accounts are not enabled. Please contact support.";
                 } else if (error.code === 'auth/weak-password') {
-                    showMessage("Password is too weak. Please try again.", "red");
+                    messageDiv.textContent = "Password is too weak. Please try again.";
                 } else {
-                    showMessage(`Registration failed: ${error.message}`, "red");
+                    messageDiv.textContent = `Registration failed: ${error.message}`;
                 }
+                messageDiv.className = "message error";
             }
         }
     } catch (error) {
         console.error("Authentication error:", error);
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-            showMessage("Invalid email or password", "red");
-        } else if (error.code === 'auth/too-many-requests') {
-            showMessage("Too many failed login attempts. Please try again later.", "red");
-        } else {
-            showMessage(`Login failed: ${error.message}`, "red");
-        }
+        // For any authentication error, show a simple message
+        messageDiv.textContent = "Incorrect credentials";
+        messageDiv.className = "message error";
     }
-}
+});
 
 function generateRandomPassword() {
     const chars = "ABCDEFGHJKLMNPQRTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%";

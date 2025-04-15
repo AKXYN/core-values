@@ -27,14 +27,61 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setupUI() {
-        // Tab switching
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-                
-                btn.classList.add('active');
-                document.getElementById(`${btn.dataset.tab}-tests`).classList.add('active');
+        // Tab switching functionality
+        const tabButtons = document.querySelectorAll('.tab-btn[data-tab]');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const tabSlider = document.querySelector('.tab-slider');
+
+        function switchTab(tabName) {
+            // Update active state of buttons
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+                if (button.dataset.tab === tabName) {
+                    button.classList.add('active');
+                }
+            });
+
+            // Update active state of contents
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `${tabName}-tests`) {
+                    content.classList.add('active');
+                }
+            });
+
+            // Move the slider
+            const activeButton = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+            const buttonText = activeButton.textContent.trim();
+            
+            // Create a temporary span to measure text width
+            const tempSpan = document.createElement('span');
+            tempSpan.style.visibility = 'hidden';
+            tempSpan.style.position = 'absolute';
+            tempSpan.style.fontSize = window.getComputedStyle(activeButton).fontSize;
+            tempSpan.style.fontWeight = window.getComputedStyle(activeButton).fontWeight;
+            tempSpan.style.fontFamily = window.getComputedStyle(activeButton).fontFamily;
+            tempSpan.textContent = buttonText;
+            document.body.appendChild(tempSpan);
+            
+            const textWidth = tempSpan.offsetWidth;
+            document.body.removeChild(tempSpan);
+            
+            // Add padding to match button padding (12px on each side)
+            const totalWidth = textWidth + 24;
+            
+            // Set the slider width and position
+            tabSlider.style.width = `${totalWidth}px`;
+            tabSlider.style.transform = `translateX(${activeButton.offsetLeft}px)`;
+        }
+
+        // Initialize slider position
+        switchTab('past');
+
+        // Add click event listeners
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.dataset.tab;
+                switchTab(tabName);
             });
         });
 
@@ -47,8 +94,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const createTestBtn = document.getElementById('create-test');
         if (createTestBtn) {
             createTestBtn.addEventListener('click', () => {
-                // Redirect to the Streamlit app
-                window.location.href = 'https://test-generator-app.streamlit.app/';
+                // Open Streamlit app in a new tab
+                window.open('https://test-generator-app.streamlit.app/', '_blank');
             });
         }
     }
@@ -181,20 +228,31 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Count students
         const studentCount = test.students ? test.students.length : 0;
-        
-        // Get completed students
         const completedStudents = test.completed || [];
         const completedCount = completedStudents.length;
+        
+        // Calculate completion percentage
+        const completionPercentage = studentCount > 0 ? (completedCount / studentCount) * 100 : 0;
+        
+        // Create progress bar
+        const progressBar = document.createElement('div');
+        progressBar.className = 'progress-bar';
+        const progressBarFill = document.createElement('div');
+        progressBarFill.className = 'progress-bar-fill';
+        progressBarFill.style.width = `${completionPercentage}%`;
+        progressBar.appendChild(progressBarFill);
         
         card.innerHTML = `
             <h3>${test.name}</h3>
             <div class="test-info">
                 <p><strong>Start Date:</strong> ${startDate}</p>
                 <p><strong>End Date:</strong> ${endDate}</p>
-                <p><strong>Status:</strong> <span class="${statusClass}">${status}</span></p>
-                <p><strong>Students:</strong> ${studentCount} (${completedCount} completed)</p>
+                <p><strong>Status:</strong> <span class="${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></p>
+                <p><strong>Students:</strong> ${completedCount} out of ${studentCount} completed</p>
             </div>
         `;
+        
+        card.appendChild(progressBar);
         
         // Add click event listener to the entire card
         card.addEventListener('click', () => {

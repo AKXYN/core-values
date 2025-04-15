@@ -70,19 +70,21 @@ async function loadTestDetails(user, testId) {
         // Check if this is a future test (status is 'draft')
         const isFutureTest = testData.status === 'draft';
         
-        // Show/hide the action column based on test status
-        const actionColumn = document.querySelector('th:nth-child(4)'); // Fourth column is Actions
-        if (actionColumn) {
-            actionColumn.style.display = isFutureTest ? 'table-cell' : 'none';
+        // Show/hide columns based on test status
+        const scoreColumn = document.querySelector('.score-column');
+        const actionsColumn = document.querySelector('.actions-column');
+        
+        if (scoreColumn && actionsColumn) {
+            if (isFutureTest) {
+                scoreColumn.style.display = 'none';
+                actionsColumn.style.display = 'table-cell';
+            } else {
+                scoreColumn.style.display = 'table-cell';
+                actionsColumn.style.display = 'none';
+            }
         }
         
-        // Hide score column for future tests
-        const scoreColumn = document.querySelector('th:nth-child(3)');
-        if (scoreColumn) {
-            scoreColumn.style.display = isFutureTest ? 'none' : 'table-cell';
-        }
-        
-        // Show/hide deploy button for future tests
+        // Show/hide deploy button based on test status
         const deployButton = document.getElementById('deploy-test-btn');
         if (deployButton) {
             deployButton.style.display = isFutureTest ? 'block' : 'none';
@@ -93,33 +95,40 @@ async function loadTestDetails(user, testId) {
             }
         }
         
-        // Show/hide the add students section based on test status
-        const addStudentsSection = document.getElementById('add-students-section');
-        if (addStudentsSection) {
-            addStudentsSection.style.display = isFutureTest ? 'block' : 'none';
-            
-            // Add event listener to the add students button
-            if (isFutureTest) {
-                document.getElementById('add-students-btn').addEventListener('click', () => {
-                    const emailsText = document.getElementById('student-emails').value.trim();
-                    if (!emailsText) {
-                        showError("Please enter at least one email address");
-                        return;
+        // Remove Add Students card for ongoing tests
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            const title = card.querySelector('.card-title');
+            if (title && title.textContent.trim() === 'Add Students') {
+                if (!isFutureTest) {
+                    card.remove();
+                } else {
+                    const addStudentsSection = document.getElementById('add-students-section');
+                    if (addStudentsSection) {
+                        addStudentsSection.style.display = 'block';
+                        
+                        document.getElementById('add-students-btn').addEventListener('click', () => {
+                            const emailsText = document.getElementById('student-emails').value.trim();
+                            if (!emailsText) {
+                                showError("Please enter at least one email address");
+                                return;
+                            }
+                            
+                            const emails = emailsText.split('\n')
+                                .map(email => email.trim())
+                                .filter(email => email && isValidEmail(email));
+                            
+                            if (emails.length === 0) {
+                                showError("No valid email addresses found");
+                                return;
+                            }
+                            
+                            addStudents(testId, emails);
+                        });
                     }
-                    
-                    const emails = emailsText.split('\n')
-                        .map(email => email.trim())
-                        .filter(email => email && isValidEmail(email));
-                    
-                    if (emails.length === 0) {
-                        showError("No valid email addresses found");
-                        return;
-                    }
-                    
-                    addStudents(testId, emails);
-                });
+                }
             }
-        }
+        });
 
         // Display students
         const studentsList = document.getElementById('students-list');
@@ -129,7 +138,7 @@ async function loadTestDetails(user, testId) {
             console.log("No students in test");
             studentsList.innerHTML = `
                 <tr>
-                    <td colspan="${isFutureTest ? '3' : '3'}" style="text-align: center;">No students added to this test</td>
+                    <td colspan="3" style="text-align: center; width: 100%;">No students added to this test</td>
                 </tr>
             `;
         } else {
@@ -144,9 +153,13 @@ async function loadTestDetails(user, testId) {
                     
                     row.innerHTML = `
                         <td>${studentEmail}</td>
-                        <td class="status-pending">Pending</td>
-                        <td>
-                            <button class="delete-student-btn" data-email="${studentEmail}">Delete</button>
+                        <td class="score-column" style="display: none;"></td>
+                        <td class="actions-column">
+                            <button class="delete-student-btn" data-email="${studentEmail}" title="Delete student">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
                         </td>
                     `;
                     
@@ -163,7 +176,6 @@ async function loadTestDetails(user, testId) {
                 });
             } else {
                 // For past tests, show split table with completed and not attempted sections
-                // Separate students into two categories
                 const studentsWithScores = [];
                 const studentsWithoutScores = [];
                 
@@ -176,7 +188,7 @@ async function loadTestDetails(user, testId) {
                         // Student has completed the test
                         studentsWithScores.push({
                             email: student,
-                            score: completedStudent.percentage // Use percentage directly from completed array
+                            score: completedStudent.percentage
                         });
                     } else {
                         // Student hasn't completed the test
@@ -186,6 +198,9 @@ async function loadTestDetails(user, testId) {
                     }
                 });
                 
+                // Sort completed students by score in descending order
+                studentsWithScores.sort((a, b) => b.score - a.score);
+                
                 // Clear the table
                 studentsList.innerHTML = '';
                 
@@ -193,20 +208,20 @@ async function loadTestDetails(user, testId) {
                 const completedHeader = document.createElement('tr');
                 completedHeader.className = 'section-header';
                 completedHeader.innerHTML = `
-                    <td colspan="3" style="background-color: #e8f5e9; font-weight: bold; text-align: center;">
+                    <td colspan="2" style="background-color: #e8f5e9; width: 100%;">
                         Completed (${studentsWithScores.length})
                     </td>
                 `;
                 studentsList.appendChild(completedHeader);
                 
-                // Add completed students
+                // Add completed students (now sorted by score)
                 studentsWithScores.forEach(student => {
                     const row = document.createElement('tr');
                     row.className = 'student-row';
                     row.innerHTML = `
                         <td>${student.email}</td>
-                        <td class="status-completed">completed</td>
-                        <td>${student.score}%</td>
+                        <td class="score-column">${student.score}%</td>
+                        <td class="actions-column" style="display: none;"></td>
                     `;
                     studentsList.appendChild(row);
                 });
@@ -215,7 +230,7 @@ async function loadTestDetails(user, testId) {
                 const notCompletedHeader = document.createElement('tr');
                 notCompletedHeader.className = 'section-header';
                 notCompletedHeader.innerHTML = `
-                    <td colspan="3" style="background-color: #fef7e0; font-weight: bold; text-align: center;">
+                    <td colspan="2" style="background-color: #fef7e0; width: 100%;">
                         Not Completed (${studentsWithoutScores.length})
                     </td>
                 `;
@@ -227,8 +242,8 @@ async function loadTestDetails(user, testId) {
                     row.className = 'student-row';
                     row.innerHTML = `
                         <td>${student.email}</td>
-                        <td class="status-pending">pending</td>
-                        <td>N/A</td>
+                        <td class="score-column">-</td>
+                        <td class="actions-column" style="display: none;"></td>
                     `;
                     studentsList.appendChild(row);
                 });

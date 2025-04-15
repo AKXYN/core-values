@@ -1,41 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Values - Login/Register</title>
+    <link rel="stylesheet" href="css/auth.css">
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <script>emailjs.init('UQO5y-V-Z0Q1o5DUG');</script>
-    <title>Login/Register</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; }
-        .container { background: #f9f9f9; padding: 20px; border-radius: 8px; }
-        input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
-        button { background: #4285f4; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; }
-        #message { margin-top: 10px; color: red; }
-        #password-field { display: block; }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h2 id="auth-title">Login</h2>
-        <div id="auth-form">
-            <input type="email" id="email" placeholder="Email" required>
-            <div id="company-field" style="display: none;">
-                <input type="text" id="company-name" placeholder="Company Name" required>
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h1 class="auth-title">Core Values</h1>
+                <div class="toggle-container">
+                    <div class="toggle-option active" data-mode="login">Login</div>
+                    <div class="toggle-option" data-mode="register">Register</div>
+                    <div class="toggle-slider"></div>
+                </div>
             </div>
-            <div id="password-field">
-                <input type="password" id="password" placeholder="Password">
-            </div>
-            <button id="auth-action">Login</button>
-            <p id="toggle-auth">No account? <a href="#" id="toggle-link">Register instead</a></p>
-            <div id="message"></div>
+            
+            <form id="auth-form" class="auth-form">
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Email" required>
+                </div>
+                
+                <div class="input-group" id="company-field" style="display: none;">
+                    <input type="text" id="company-name" placeholder="Company Name">
+                </div>
+                
+                <div class="input-group" id="password-field">
+                    <input type="password" id="password" placeholder="Password">
+                </div>
+                
+                <button type="submit" class="auth-button" id="auth-action">Login</button>
+                
+                <div id="message" class="message"></div>
+            </form>
         </div>
     </div>
 
-
-
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script> <!-- THIS IS CRUCIAL -->
-
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="js/firebase.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/auth.js"></script>
