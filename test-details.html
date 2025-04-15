@@ -41,21 +41,35 @@
             text-align: left;
             border-bottom: 1px solid #e0e0e0;
         }
-        .student-table th {
+        .student-table thead tr {
             background: #f5f7fa;
+        }
+        .student-table th {
             font-weight: 500;
         }
-        .student-table tr:hover {
-            background: #f9f9f9;
+        /* Remove display: none from the action column */
+        #action-column {
+            background: #f5f7fa;
         }
-        .student-row {
-            cursor: pointer;
+        .section-header {
+            background: #f5f7fa;
         }
+        .section-header td {
+            text-align: center !important;
+            font-weight: 500;
+            padding: 12px 15px;
+        }
+        /* Status text colors */
         .status-completed {
             color: #34a853;
+            font-weight: 500;
         }
         .status-pending {
             color: #fbbc05;
+            font-weight: 500;
+        }
+        .student-row:hover {
+            background: #f9f9f9;
         }
         .loading {
             text-align: center;
@@ -165,6 +179,30 @@
         .delete-student-btn:hover {
             background: #d32f2f;
         }
+        
+        /* Deploy button styling */
+        .deploy-button {
+            background: #34a853;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto 20px auto;
+            transition: background-color 0.2s;
+        }
+        .deploy-button:hover {
+            background: #2e7d32;
+        }
+        .deploy-button:disabled {
+            background: #a5d6a7;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -174,6 +212,11 @@
         
         <div id="loading-indicator" class="loading">Loading test details...</div>
         <div id="error-message" class="error-message" style="display: none;"></div>
+        
+        <!-- Deploy button (only shown for future tests) -->
+        <button id="deploy-test-btn" class="deploy-button" style="display: none;">
+            Deploy Test for Students
+        </button>
         
         <!-- Add Students Section -->
         <div id="add-students-section" class="add-students-section" style="display: none;">
@@ -189,7 +232,7 @@
                     <th>Student Email</th>
                     <th>Status</th>
                     <th>Score</th>
-                    <th id="action-column" style="display: none;">Actions</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="students-list">
@@ -202,6 +245,31 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        // Initialize EmailJS with your public key
+        try {
+            emailjs.init("UQO5y-V-Z0Q1o5DUG");
+            console.log('EmailJS initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize EmailJS:', error);
+        }
+        
+        // Email template
+        const emailTemplate = {
+            service_id: "service_zkrdtgj",
+            template_id: "template_oe740ul",
+            template_params: {
+                test_name: "",
+                test_id: "",
+                test_link: "https://akxyn.github.io/quiz-app/quiz.html",
+                email: "",
+                company_name: ""
+            }
+        };
+    </script>
     
     <!-- Your config -->
     <script src="js/firebase.js"></script>

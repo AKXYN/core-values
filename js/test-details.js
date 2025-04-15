@@ -71,7 +71,7 @@ async function loadTestDetails(user, testId) {
         const isFutureTest = testData.status === 'draft';
         
         // Show/hide the action column based on test status
-        const actionColumn = document.getElementById('action-column');
+        const actionColumn = document.querySelector('th:nth-child(4)'); // Fourth column is Actions
         if (actionColumn) {
             actionColumn.style.display = isFutureTest ? 'table-cell' : 'none';
         }
@@ -80,6 +80,17 @@ async function loadTestDetails(user, testId) {
         const scoreColumn = document.querySelector('th:nth-child(3)');
         if (scoreColumn) {
             scoreColumn.style.display = isFutureTest ? 'none' : 'table-cell';
+        }
+        
+        // Show/hide deploy button for future tests
+        const deployButton = document.getElementById('deploy-test-btn');
+        if (deployButton) {
+            deployButton.style.display = isFutureTest ? 'block' : 'none';
+            if (isFutureTest) {
+                deployButton.addEventListener('click', () => {
+                    deployTest(testId);
+                });
+            }
         }
         
         // Show/hide the add students section based on test status
@@ -157,93 +168,70 @@ async function loadTestDetails(user, testId) {
                 const studentsWithoutScores = [];
                 
                 testData.students.forEach(student => {
-                    // Get student's test result
-                    const studentResult = testData.results && testData.results[student] 
-                        ? testData.results[student] 
-                        : { completed: false, status: 'pending', score: null };
+                    // Check if student exists in completed array
+                    const completedStudent = testData.completed ? 
+                        testData.completed.find(c => c.email === student) : null;
                     
-                    // Check if the student has actually completed the test
-                    const isCompleted = studentResult.completed === true;
-                    
-                    const studentData = {
-                        email: student,
-                        status: isCompleted ? 'completed' : (studentResult.status || 'pending'),
-                        score: studentResult.score
-                    };
-                    
-                    if (isCompleted && studentResult.score !== null) {
-                        studentsWithScores.push(studentData);
+                    if (completedStudent) {
+                        // Student has completed the test
+                        studentsWithScores.push({
+                            email: student,
+                            score: completedStudent.percentage // Use percentage directly from completed array
+                        });
                     } else {
-                        studentsWithoutScores.push(studentData);
+                        // Student hasn't completed the test
+                        studentsWithoutScores.push({
+                            email: student
+                        });
                     }
                 });
                 
-                // Sort students with scores by score (highest first)
-                studentsWithScores.sort((a, b) => b.score - a.score);
+                // Clear the table
+                studentsList.innerHTML = '';
                 
-                // Add header for students with scores
-                if (studentsWithScores.length > 0) {
-                    const headerRow = document.createElement('tr');
-                    headerRow.className = 'section-header';
-                    headerRow.innerHTML = `
-                        <td colspan="3" style="background-color: #e8f0fe; font-weight: bold; text-align: center;">
-                            Completed Tests (${studentsWithScores.length})
-                        </td>
-                    `;
-                    studentsList.appendChild(headerRow);
-                    
-                    // Add students with scores
-                    studentsWithScores.forEach(student => {
-                        const row = document.createElement('tr');
-                        row.className = 'student-row';
-                        row.dataset.email = student.email;
-                        
-                        row.innerHTML = `
-                            <td>${student.email}</td>
-                            <td class="status-${student.status}">${student.status}</td>
-                            <td>${student.score}%</td>
-                        `;
-                        
-                        // Add click event listener
-                        row.addEventListener('click', () => {
-                            viewStudentReport(testId, student.email);
-                        });
-                        
-                        studentsList.appendChild(row);
-                    });
-                }
+                // FIRST SECTION: Completed
+                const completedHeader = document.createElement('tr');
+                completedHeader.className = 'section-header';
+                completedHeader.innerHTML = `
+                    <td colspan="3" style="background-color: #e8f5e9; font-weight: bold; text-align: center;">
+                        Completed (${studentsWithScores.length})
+                    </td>
+                `;
+                studentsList.appendChild(completedHeader);
                 
-                // Add header for students without scores
-                if (studentsWithoutScores.length > 0) {
-                    const headerRow = document.createElement('tr');
-                    headerRow.className = 'section-header';
-                    headerRow.innerHTML = `
-                        <td colspan="3" style="background-color: #fef7e0; font-weight: bold; text-align: center;">
-                            Not Attempted (${studentsWithoutScores.length})
-                        </td>
+                // Add completed students
+                studentsWithScores.forEach(student => {
+                    const row = document.createElement('tr');
+                    row.className = 'student-row';
+                    row.innerHTML = `
+                        <td>${student.email}</td>
+                        <td class="status-completed">completed</td>
+                        <td>${student.score}%</td>
                     `;
-                    studentsList.appendChild(headerRow);
-                    
-                    // Add students without scores
-                    studentsWithoutScores.forEach(student => {
-                        const row = document.createElement('tr');
-                        row.className = 'student-row';
-                        row.dataset.email = student.email;
-                        
-                        row.innerHTML = `
-                            <td>${student.email}</td>
-                            <td class="status-${student.status}">${student.status}</td>
-                            <td>N/A</td>
-                        `;
-                        
-                        // Add click event listener
-                        row.addEventListener('click', () => {
-                            viewStudentReport(testId, student.email);
-                        });
-                        
-                        studentsList.appendChild(row);
-                    });
-                }
+                    studentsList.appendChild(row);
+                });
+                
+                // SECOND SECTION: Not Completed
+                const notCompletedHeader = document.createElement('tr');
+                notCompletedHeader.className = 'section-header';
+                notCompletedHeader.innerHTML = `
+                    <td colspan="3" style="background-color: #fef7e0; font-weight: bold; text-align: center;">
+                        Not Completed (${studentsWithoutScores.length})
+                    </td>
+                `;
+                studentsList.appendChild(notCompletedHeader);
+                
+                // Add not completed students
+                studentsWithoutScores.forEach(student => {
+                    const row = document.createElement('tr');
+                    row.className = 'student-row';
+                    row.innerHTML = `
+                        <td>${student.email}</td>
+                        <td class="status-pending">pending</td>
+                        <td>N/A</td>
+                    `;
+                    studentsList.appendChild(row);
+                });
             }
         }
 
@@ -417,4 +405,75 @@ function viewStudentReport(testId, studentEmail) {
 function showError(message) {
     document.getElementById('error-message').textContent = message;
     document.getElementById('error-message').style.display = 'block';
+}
+
+// Function to deploy the test
+async function deployTest(testId) {
+    try {
+        const confirmDeploy = confirm('Are you sure you want to deploy this test? Students will be able to take it immediately.');
+        if (!confirmDeploy) return;
+
+        const deployButton = document.getElementById('deploy-test-btn');
+        deployButton.disabled = true;
+        deployButton.textContent = 'Deploying...';
+
+        // Update test status in Firestore
+        await firebase.firestore()
+            .collection('tests')
+            .doc(testId)
+            .update({
+                status: 'active',
+                updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+        // Get test details for email
+        const testDoc = await firebase.firestore()
+            .collection('tests')
+            .doc(testId)
+            .get();
+        
+        const testData = testDoc.data();
+        const students = testData.students || [];
+
+        console.log('Starting to send emails to students:', students);
+
+        // Send emails to all students
+        for (const studentEmail of students) {
+            try {
+                console.log('Preparing email for:', studentEmail);
+                
+                // Update email template parameters
+                emailTemplate.template_params = {
+                    test_name: testData.name,
+                    test_id: testId,
+                    test_link: `https://akxyn.github.io/quiz-app/quiz.html`,
+                    email: studentEmail,
+                    company_name: testData.company
+                };
+
+                console.log('Email template params:', emailTemplate.template_params);
+
+                // Send email
+                const response = await emailjs.send(
+                    emailTemplate.service_id,
+                    emailTemplate.template_id,
+                    emailTemplate.template_params
+                );
+                
+                console.log('Email sent successfully to:', studentEmail, 'Response:', response);
+            } catch (emailError) {
+                console.error(`Failed to send email to ${studentEmail}:`, emailError);
+                // Continue with other students even if one fails
+            }
+        }
+
+        alert('Test has been deployed successfully! Emails have been sent to all students.');
+        location.reload();
+    } catch (error) {
+        console.error('Error deploying test:', error);
+        alert('Failed to deploy test. Please try again.');
+        const deployButton = document.getElementById('deploy-test-btn');
+        deployButton.disabled = false;
+        deployButton.textContent = 'Deploy Test for Students';
+    }
 }

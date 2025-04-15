@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("Creating card for test:", testId, test.name);
         const card = document.createElement('div');
         card.className = 'test-card';
-        card.style.cursor = 'pointer'; // Add pointer cursor to indicate clickability
+        card.style.cursor = 'pointer';
         
         // Determine test status
         let status = test.status || 'draft';
@@ -182,13 +182,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Count students
         const studentCount = test.students ? test.students.length : 0;
         
+        // Get completed students
+        const completedStudents = test.completed || [];
+        const completedCount = completedStudents.length;
+        
         card.innerHTML = `
             <h3>${test.name}</h3>
             <div class="test-info">
                 <p><strong>Start Date:</strong> ${startDate}</p>
                 <p><strong>End Date:</strong> ${endDate}</p>
                 <p><strong>Status:</strong> <span class="${statusClass}">${status}</span></p>
-                <p><strong>Students:</strong> ${studentCount}</p>
+                <p><strong>Students:</strong> ${studentCount} (${completedCount} completed)</p>
             </div>
         `;
         
