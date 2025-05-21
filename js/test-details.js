@@ -217,12 +217,23 @@ async function loadTestDetails(user, testId) {
                 // Add completed students (now sorted by score)
                 studentsWithScores.forEach(student => {
                     const row = document.createElement('tr');
-                    row.className = 'student-row';
+                    row.className = 'student-row completed-student';
+                    row.style.cursor = 'pointer';
                     row.innerHTML = `
                         <td>${student.email}</td>
                         <td class="score-column">${student.score}%</td>
                         <td class="actions-column" style="display: none;"></td>
                     `;
+                    
+                    // Add click event listener
+                    row.addEventListener('click', () => {
+                        navigateToPageWithParams('student-report.html', {
+                            testId: testId,
+                            studentEmail: student.email,
+                            score: student.score
+                        });
+                    });
+                    
                     studentsList.appendChild(row);
                 });
                 
